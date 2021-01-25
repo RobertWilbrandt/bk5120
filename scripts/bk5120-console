@@ -87,6 +87,9 @@ class BK5120Shell(cmd.Cmd):
 
     def do_type(self, raw_args):
         """Implementation of 'type' command
+
+        :param raw_args: Command arguments
+        :type raw_args: list
         """
         args = split_args(raw_args)
 
@@ -108,6 +111,31 @@ class BK5120Shell(cmd.Cmd):
 
         else:
             print("Usage: type")
+
+    def do_device(self, raw_args):
+        """Implementation of 'device' command
+
+        :param raw_args: Command arguments
+        :type raw_args: list
+        """
+        args = split_args(raw_args)
+
+        if len(args) == 0:
+            man_dev_name = self._node.sdo[0x1008].raw
+            man_hw_ver = self._node.sdo[0x1009].raw
+            man_sw_ver = self._node.sdo[0x100A].raw
+
+            print(f"Manufacturer device name:       {man_dev_name}")
+            print(f"Manufacturer hardware version:  {man_hw_ver}")
+            print(f"Manufacturer software version:  {man_sw_ver}")
+
+        else:
+            print("Usage: device")
+
+    def help_device(self):
+        """Print help information for 'device' command
+        """
+        print("Read manufacturer device information")
 
     def help_sdo(self):
         """Print help information for 'sdo' command
