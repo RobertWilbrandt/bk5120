@@ -9,6 +9,8 @@ import sys
 import canopen
 
 DEFAULT_INTERFACE = "can0"
+DEFAULT_ID = 1
+DEFAULT_EDS = "BK5120.eds"
 
 
 def parse_cli():
@@ -28,6 +30,20 @@ def parse_cli():
         default=DEFAULT_INTERFACE,
         help=f"Socketcan interface to use (default: {DEFAULT_INTERFACE})",
     )
+    cli_parser.add_argument(
+        "id",
+        type=int,
+        nargs="?",
+        default=DEFAULT_ID,
+        help=f"Node id to connect to (default: {DEFAULT_ID})",
+    )
+    cli_parser.add_argument(
+        "eds",
+        type=argparse.FileType("r"),
+        nargs="?",
+        default=DEFAULT_EDS,
+        help=f"Path to EDS file for the node (default: {DEFAULT_EDS})",
+    )
 
     return cli_parser.parse_args()
 
@@ -37,12 +53,16 @@ class BK5120Shell(cmd.Cmd):
 
     :param network: CANopen network to use
     :type network: canopen.Network
+    :param node: CANopen node to control
+    :type node: canopen.Node
     """
 
     # pylint: disable=no-self-use
 
-    def __init__(self, network):
+    def __init__(self, network, node):
         self._network = network
+        self._node = node
+
         super().__init__()
 
     def help_quit(self):
@@ -72,7 +92,10 @@ def main():
             print(f"Could not open socketcan interface {args.interface}: {ex}")
             sys.exit(1)
 
-        shell = BK5120Shell(network)
+        print(f"Connecting to node {args.id}...")
+        node = network.add_node(args.id, args.eds)
+
+        shell = BK5120Shell(network, node)
         return shell.cmdloop()
 
 
