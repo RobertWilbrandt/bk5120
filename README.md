@@ -10,5 +10,6 @@ The easiest way to install this script is to use pip:
 
 ```console
 $ git clone git@github.com:RobertWilbrandt/bk5120.git && cd bk5120  # Clone library
+$ pip3 install --user -r requirements.txt  # Install requirements
 $ pip3 install --user .  # Install library
 ```

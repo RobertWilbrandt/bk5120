@@ -3,9 +3,11 @@
 # pylint: disable=invalid-name
 
 import argparse
+import sys
+
+import canopen
 
 DEFAULT_INTERFACE = "can0"
-DEFAULT_RATE = 500000
 
 
 def parse_cli():
@@ -25,13 +27,6 @@ def parse_cli():
         default=DEFAULT_INTERFACE,
         help=f"Socketcan interface to use (default: {DEFAULT_INTERFACE})",
     )
-    cli_parser.add_argument(
-        "rate",
-        type=int,
-        nargs="?",
-        default=DEFAULT_RATE,
-        help=f"Baud rate used by bus coupler (default: {DEFAULT_RATE})",
-    )
 
     return cli_parser.parse_args()
 
@@ -39,8 +34,23 @@ def parse_cli():
 def main():
     """Console entry point"""
     args = parse_cli()
-    print(f"Interface: {args.interface}")
-    print(f"rate: {args.rate}")
+
+    # Connect to bus
+    with canopen.Network() as network:
+        try:
+            network.connect(bustype="socketcan", channel=args.interface)
+        except OSError as ex:
+            print(f"Could not open socketcan interface {args.interface}: {ex}")
+            sys.exit(1)
+
+        # Start console
+        while 1:
+            cmd = input("> ")
+
+            if cmd == "quit":
+                return
+
+            print(f"Command: {cmd}")
 
 
 if __name__ == "__main__":
