@@ -80,6 +80,35 @@ class BK5120Shell(cmd.Cmd):
         print("")
         return stop
 
+    def help_type(self):
+        """Print help information for 'type' command
+        """
+        print("Read device type information using SDO")
+
+    def do_type(self, raw_args):
+        """Implementation of 'type' command
+        """
+        args = split_args(raw_args)
+
+        if len(args) == 0:
+            device_type = self._node.sdo[0x1000].raw
+
+            if bool(0x800000 & device_type):
+                pdo_mappings = "Device specific"
+            else:
+                pdo_mappings = "Pre-defined generic"
+
+            print(f"Raw device type entry:  0x{device_type:08x}")
+            print(f"  Device profile:       {((1<<16)-1) & device_type}")
+            print(f"  Digital input(s):     {bool(0x10000 & device_type)}")
+            print(f"  Digital output(s):    {bool(0x20000 & device_type)}")
+            print(f"  Analogue input(s):    {bool(0x40000 & device_type)}")
+            print(f"  Analogue output(s):   {bool(0x80000 & device_type)}")
+            print(f"  PDO mappings:         {pdo_mappings}")
+
+        else:
+            print("Usage: type")
+
     def help_sdo(self):
         """Print help information for 'sdo' command
         """
