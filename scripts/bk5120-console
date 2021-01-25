@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+"""Small console to test different bus terminals with the BK5120 CANopen bus coupler"""
+# pylint: disable=invalid-name
+
+
+def main():
+    """Console entry point"""
+    print("Hello World!")
+
+
+if __name__ == "__main__":
+    main()
