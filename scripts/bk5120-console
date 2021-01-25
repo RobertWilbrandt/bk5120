@@ -2,10 +2,45 @@
 """Small console to test different bus terminals with the BK5120 CANopen bus coupler"""
 # pylint: disable=invalid-name
 
+import argparse
+
+DEFAULT_INTERFACE = "can0"
+DEFAULT_RATE = 500000
+
+
+def parse_cli():
+    """Parse command line arguments from sys.argv
+
+    :return: Parsed command line arguments
+    :rtype: argparse.Namespace
+    """
+    cli_parser = argparse.ArgumentParser(
+        description="Control a BK5120 CANopen bus coupler"
+    )
+
+    cli_parser.add_argument(
+        "interface",
+        type=str,
+        nargs="?",
+        default=DEFAULT_INTERFACE,
+        help=f"Socketcan interface to use (default: {DEFAULT_INTERFACE})",
+    )
+    cli_parser.add_argument(
+        "rate",
+        type=int,
+        nargs="?",
+        default=DEFAULT_RATE,
+        help=f"Baud rate used by bus coupler (default: {DEFAULT_RATE})",
+    )
+
+    return cli_parser.parse_args()
+
 
 def main():
     """Console entry point"""
-    print("Hello World!")
+    args = parse_cli()
+    print(f"Interface: {args.interface}")
+    print(f"rate: {args.rate}")
 
 
 if __name__ == "__main__":
