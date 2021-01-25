@@ -3,6 +3,7 @@
 # pylint: disable=invalid-name
 
 import argparse
+import cmd
 import sys
 
 import canopen
@@ -31,6 +32,34 @@ def parse_cli():
     return cli_parser.parse_args()
 
 
+class BK5120Shell(cmd.Cmd):
+    """Minimal BK5120 control shell
+
+    :param network: CANopen network to use
+    :type network: canopen.Network
+    """
+
+    # pylint: disable=no-self-use
+
+    def __init__(self, network):
+        self._network = network
+        super().__init__()
+
+    def help_quit(self):
+        """Print help information for 'quit' command
+        """
+        print("Exit this shell")
+        print()
+
+    def do_quit(self, _):
+        """Implementation of 'quit' command, exiting the shell
+
+        :return: True, as this should exit the shell
+        :rtype: bool
+        """
+        return True
+
+
 def main():
     """Console entry point"""
     args = parse_cli()
@@ -43,14 +72,8 @@ def main():
             print(f"Could not open socketcan interface {args.interface}: {ex}")
             sys.exit(1)
 
-        # Start console
-        while 1:
-            cmd = input("> ")
-
-            if cmd == "quit":
-                return
-
-            print(f"Command: {cmd}")
+        shell = BK5120Shell(network)
+        return shell.cmdloop()
 
 
 if __name__ == "__main__":
