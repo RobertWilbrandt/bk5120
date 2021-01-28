@@ -3,10 +3,10 @@
 # pylint: disable=invalid-name
 
 import argparse
-import cmd
 import sys
 
 import canopen
+import cmd2
 
 DEFAULT_INTERFACE = "can0"
 DEFAULT_ID = 1
@@ -57,7 +57,7 @@ def split_args(args):
     return [i for i in args.split(" ") if i != ""]
 
 
-class BK5120Shell(cmd.Cmd):
+class BK5120Shell(cmd2.Cmd):
     """Minimal BK5120 control shell
 
     :param network: CANopen network to use
@@ -72,13 +72,7 @@ class BK5120Shell(cmd.Cmd):
         self._network = network
         self._node = node
 
-        super().__init__()
-
-    def postcmd(self, stop, _):
-        """Print empty line after each command
-        """
-        print("")
-        return stop
+        super().__init__(allow_cli_args=False)
 
     def help_type(self):
         """Print help information for 'type' command
