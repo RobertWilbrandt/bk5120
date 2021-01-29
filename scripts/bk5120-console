@@ -68,8 +68,11 @@ def main():
 
         node = network.add_node(args.id, args.eds)
 
-        shell = bk5120.Console(network, node)
-        return shell.cmdloop()
+        console_cmds = [bk5120.DeviceCmd(node)]
+        console = bk5120.Console(
+            network, node, auto_load_commands=False, command_sets=console_cmds
+        )
+        return console.cmdloop()
 
 
 if __name__ == "__main__":

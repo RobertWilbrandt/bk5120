@@ -22,68 +22,11 @@ class Console(cmd2.Cmd):
 
     # pylint: disable=no-self-use
 
-    def __init__(self, network, node):
+    def __init__(self, network, node, *args, **kwargs):
         self._network = network
         self._node = node
 
-        super().__init__(allow_cli_args=False)
-
-    def help_type(self):
-        """Print help information for 'type' command
-        """
-        print("Read device type information using SDO")
-
-    def do_type(self, raw_args):
-        """Implementation of 'type' command
-
-        :param raw_args: Command arguments
-        :type raw_args: list
-        """
-        args = split_args(raw_args)
-
-        if len(args) == 0:
-            device_type = self._node.sdo[0x1000].raw
-
-            if bool(0x800000 & device_type):
-                pdo_mappings = "Device specific"
-            else:
-                pdo_mappings = "Pre-defined generic"
-
-            print(f"Raw device type entry:  0x{device_type:08x}")
-            print(f"  Device profile:       {((1<<16)-1) & device_type}")
-            print(f"  Digital input(s):     {bool(0x10000 & device_type)}")
-            print(f"  Digital output(s):    {bool(0x20000 & device_type)}")
-            print(f"  Analogue input(s):    {bool(0x40000 & device_type)}")
-            print(f"  Analogue output(s):   {bool(0x80000 & device_type)}")
-            print(f"  PDO mappings:         {pdo_mappings}")
-
-        else:
-            print("Usage: type")
-
-    def do_device(self, raw_args):
-        """Implementation of 'device' command
-
-        :param raw_args: Command arguments
-        :type raw_args: list
-        """
-        args = split_args(raw_args)
-
-        if len(args) == 0:
-            man_dev_name = self._node.sdo[0x1008].raw
-            man_hw_ver = self._node.sdo[0x1009].raw
-            man_sw_ver = self._node.sdo[0x100A].raw
-
-            print(f"Manufacturer device name:       {man_dev_name}")
-            print(f"Manufacturer hardware version:  {man_hw_ver}")
-            print(f"Manufacturer software version:  {man_sw_ver}")
-
-        else:
-            print("Usage: device")
-
-    def help_device(self):
-        """Print help information for 'device' command
-        """
-        print("Read manufacturer device information")
+        super().__init__(allow_cli_args=False, *args, **kwargs)
 
     def help_sdo(self):
         """Print help information for 'sdo' command
