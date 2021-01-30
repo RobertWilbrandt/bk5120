@@ -61,14 +61,23 @@ class NmtCmd(cmd2.CommandSet):
     # NMT node-guarding implementation
     #
 
-    def nmt_node_guarding_start(self, _):
+    def nmt_node_guarding_start(self, args):
         """Start the node-guarding error control protocol
 
         This will do two things:
         - Set up node-guarding parameters via SDO
         - Start sending periodic node-guarding messages
         """
-        self._cmd.poutput("node guarding start")
+        guard_time_in_s = args.guard_time / 1000.0
+        self._node.nmt.start_node_guarding(guard_time_in_s)
+
+        self._node.sdo[0x100C].raw = args.guard_time
+        self._node.sdo[0x100D].raw = args.life_time_factor
+
+        self._cmd.pfeedback(
+            f"Started NMT node guarding with guard time {guard_time_in_s}s and node "
+            f"life time {args.life_time_factor*guard_time_in_s}s"
+        )
 
     def nmt_node_guarding_stop(self, _):
         """Stop the node-guarding error control protocol
@@ -77,7 +86,12 @@ class NmtCmd(cmd2.CommandSet):
         - Disable node-guarding via SDO
         - Stop sending periodic node-guarding messages
         """
-        self._cmd.poutput("node guarding stop")
+        self._node.sdo[0x100C].raw = 0x0
+        self._node.sdo[0x100D].raw = 0x0
+
+        self._node.nmt.stop_node_guarding()
+
+        self._cmd.pfeedback("Stopped node guarding")
 
     def nmt_node_guarding(self, args):
         """Configure and control the NMT node guarding error control protocol
@@ -132,6 +146,21 @@ class NmtCmd(cmd2.CommandSet):
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     nmt_node_guarding_start_parser.set_defaults(subfunc=nmt_node_guarding_start)
+    nmt_node_guarding_start_parser.add_argument(
+        "guard_time",
+        nargs="?",
+        type=int,
+        default=100,
+        help="Period of node guard RTR in ms",
+    )
+    nmt_node_guarding_start_parser.add_argument(
+        "life_time_factor",
+        nargs="?",
+        type=int,
+        default=5,
+        help="Number of anticipated node guarding RTRs without request after which an "
+        "error should be raised",
+    )
 
     # NMT node guarding stop sub-parser
     nmt_node_guarding_stop_parser = nmt_node_guarding_subparsers.add_parser(
