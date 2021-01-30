@@ -68,7 +68,11 @@ def main():
 
         node = network.add_node(args.id, args.eds)
 
-        console_cmds = [bk5120.DeviceCmd(node), bk5120.SdoCmd(node)]
+        console_cmds = [
+            bk5120.DeviceCmd(node),
+            bk5120.SdoCmd(node),
+            bk5120.NmtCmd(node),
+        ]
         console = bk5120.Console(
             network, node, auto_load_commands=False, command_sets=console_cmds
         )
