@@ -15,6 +15,10 @@ class NmtCmd(cmd2.CommandSet):
 
         super().__init__()
 
+    #
+    # NMT service implementation
+    #
+
     def nmt_service_start(self, _):
         """Change the NMT state by using the 'start' service
         """
@@ -49,9 +53,45 @@ class NmtCmd(cmd2.CommandSet):
     }
 
     def nmt_service(self, args):
-        """Use on of the NMT services to change the NMT state
+        """Use one of the NMT services to change the NMT state
         """
         self.NMT_SERVICES[args.service](self, args)
+
+    #
+    # NMT node-guarding implementation
+    #
+
+    def nmt_node_guarding_start(self, _):
+        """Start the node-guarding error control protocol
+
+        This will do two things:
+        - Set up node-guarding parameters via SDO
+        - Start sending periodic node-guarding messages
+        """
+        self._cmd.poutput("node guarding start")
+
+    def nmt_node_guarding_stop(self, _):
+        """Stop the node-guarding error control protocol
+
+        This will do two things:
+        - Disable node-guarding via SDO
+        - Stop sending periodic node-guarding messages
+        """
+        self._cmd.poutput("node guarding stop")
+
+    def nmt_node_guarding(self, args):
+        """Configure and control the NMT node guarding error control protocol
+        """
+        subfunc = getattr(args, "subfunc", None)
+        if subfunc is not None:
+            subfunc(self, args)
+        else:
+            self._cmd.perror("Invalid command")
+            self._cmd.do_help("nmt node-guarding")
+
+    #
+    # Command parser setup
+    #
 
     # Base parser
     nmt_parser = argparse.ArgumentParser()
@@ -70,6 +110,37 @@ class NmtCmd(cmd2.CommandSet):
     nmt_service_parser.add_argument(
         "service", choices=NMT_SERVICES.keys(), help="Which NMT service to call"
     )
+
+    # NMT node guarding parser
+    nmt_node_guarding_parser = nmt_subparsers.add_parser(
+        "node-guarding",
+        help="Configure and control the NMT node guarding error control protocol",
+        description=inspect.cleandoc(nmt_node_guarding.__doc__),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    nmt_node_guarding_parser.set_defaults(func=nmt_node_guarding)
+    nmt_node_guarding_subparsers = nmt_node_guarding_parser.add_subparsers(
+        title="subcommands",
+        help="What to do with the NMT node guarding error control protocol",
+    )
+
+    # NMT node guarding start sub-parser
+    nmt_node_guarding_start_parser = nmt_node_guarding_subparsers.add_parser(
+        "start",
+        help="Start the NMT node guarding error control protocol",
+        description=inspect.cleandoc(nmt_node_guarding_start.__doc__),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    nmt_node_guarding_start_parser.set_defaults(subfunc=nmt_node_guarding_start)
+
+    # NMT node guarding stop sub-parser
+    nmt_node_guarding_stop_parser = nmt_node_guarding_subparsers.add_parser(
+        "stop",
+        help="Stop the NMT node guarding error control protocol",
+        description=inspect.cleandoc(nmt_node_guarding_stop.__doc__),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    nmt_node_guarding_stop_parser.set_defaults(subfunc=nmt_node_guarding_stop)
 
     @cmd2.with_argparser(nmt_parser)
     def do_nmt(self, args):
