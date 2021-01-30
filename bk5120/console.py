@@ -59,16 +59,3 @@ class Console(cmd2.Cmd):
             self._node.nmt.send_command(0x82)
         else:
             print("Invalid argument. Check ?nmt to see all valid NMT commands")
-
-    def help_quit(self):
-        """Print help information for 'quit' command
-        """
-        print("Exit this shell")
-
-    def do_quit(self, _):
-        """Implementation of 'quit' command, exiting the shell
-
-        :return: True, as this should exit the shell
-        :rtype: bool
-        """
-        return True
