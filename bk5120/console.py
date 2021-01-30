@@ -28,53 +28,6 @@ class Console(cmd2.Cmd):
 
         super().__init__(allow_cli_args=False, *args, **kwargs)
 
-    def help_sdo(self):
-        """Print help information for 'sdo' command
-        """
-        print("Directly access object dictionary using SDOs")
-        print("")
-        print("Upload:")
-        print("  sdo upload <address> [<subaddress>]")
-        print("Download:")
-        print("  sdo download <address> [<subaddress>] <value>")
-        print("")
-        print("Examples:")
-        print("  sdo upload 0x1000            # Read device type")
-        print("  sdo upload 0x6000 0          # Read number of digital inputs")
-        print("  sdo download 0x6200 0x1 0x3  # Turn two digital outputs on")
-
-    def do_sdo(self, raw_args):
-        """Implementation of 'sdo' command
-
-        :param raw_args: Command argument
-        :type args: list
-        """
-        args = split_args(raw_args)
-
-        # Upload
-        if len(args) > 1 and len(args) <= 3 and args[0] == "upload":
-            entry = self._node.sdo[int(args[1], 0)]
-            if len(args) == 3:
-                entry = entry[int(args[2], 0)]
-
-            print(f"0x{entry.raw:x}")
-            return False
-
-        # Download
-        if len(args) > 2 and len(args) <= 4 and args[0] == "download":
-            entry = self._node.sdo[int(args[1], 0)]
-            value = args[2]
-
-            if len(args) == 4:
-                entry = entry[int(args[2], 0)]
-                value = args[3]
-
-            entry.raw = int(value, 0)
-            return False
-
-        print("Invalid command. Check ?sdo to see all valid SDO commands")
-        return False
-
     def help_nmt(self):
         """Print help information for the 'nmt' command
         """
