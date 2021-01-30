@@ -173,10 +173,30 @@ class NmtCmd(cmd2.CommandSet):
     def __init__(self, node):
         self._node = node
 
+        self._last_state = None
+        node.nmt.add_hearbeat_callback(self._on_heartbeat)
+
         super().__init__()
 
         self._cmd_service = NmtServiceCmd(self._cmd, node)
         self._cmd_nodeguarding = NmtNodeguardingCmd(self._cmd, node)
+
+    def _on_heartbeat(self, state):
+        if self._last_state != state:
+            state_names = {4: "STOPPED", 5: "OPERATIONAL", 127: "PRE-OPERATIONAL"}
+
+            last_state_desc = (
+                state_names[self._last_state]
+                if self._last_state is not None
+                else "(Unknown)"
+            )
+            state_desc = state_names[state]
+
+            self._cmd.async_alert(
+                f"Detected NMT state change from {last_state_desc} to {state_desc}"
+            )
+
+        self._last_state = state
 
     # Base parser
     nmt_parser = argparse.ArgumentParser()
